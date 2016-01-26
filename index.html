@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>Intro to Redux - JAWAD 26.1.16</title>
+
+		<meta name="description" content="An introduction to the principles behind Redux">
+		<meta name="author" content="Christian Hall">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/blood.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section data-background="img/jawas.gif">
+					<h1>Redux 101</h1>
+				</section>
+
+				<section>
+					<p>Christian Hall</p>
+					<p>Lead Developer @ Good</p>
+					<img src="img/face.jpg" style="border-radius: 100%" width="250" height="250" />
+					<aside class="notes">
+						Agency in town focused on building good apps and websites for startups and agencies
+					</aside>
+				</section>
+
+				<section>
+					<h2>Redux 101</h2>
+					<ul>
+						<li>Background</li>
+						<li>Principles</li>
+						<li>Basics</li>
+						<li>Example</li>
+						<li>Reasoning</li>
+						<li>Extras</li>
+						<li>Resources</li>
+					</ul>
+				</section>
+
+				<section>
+					<section>
+						<h2>Disclaimer</h2>
+						<p class="fragment">Do I need Redux to write good React apps?</p>
+						<p class="fragment">Should I switch from (insert framework) to React + Redux right now?</p>
+						<p class="fragment">Will my app/startup/life fail if I'm not using Redux?</p>
+					</section>
+					<section data-background="img/help.gif">
+					</section>
+					<section>
+						<h2>NO</h2>
+					</section>
+					<section>
+						<p>Use what works for you. If you like some of the ideas behind Redux, use it or find a way to use the ideas with your stack.</p>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Background</h2>
+						<aside class="notes">
+							Discuss origins of redux, Facebook's notification story and issues with mvc, flux
+						</aside>
+					</section>
+					<section>
+						<h2>MVC</h2>
+						<img src="img/mvc-complex.jpg" height="459" />
+						<aside class="notes">
+							Does your MVC app look like this? Maybe, maybe not. A bit contrived
+						</aside>
+					</section>
+					<section>
+						<h2>Flux</h2>
+						<img src="img/flux-simple.jpg" height="220" />
+						<aside class="notes">
+							Not exactly the same as the mvc example
+						</aside>
+					</section>
+					<section data-background="img/seriously.gif">
+					</section>
+					<section>
+						<h2>Flux</h2>
+						<img src="img/flux-complex.jpg" height="503" />
+						<aside class="notes">
+							Can get complex. important thing to note is single direction and predictability
+						</aside>
+					</section>
+					<section>
+						<h2>Motivation</h2>
+						<ul>
+							<li>Increasing front end complexity</li>
+							<li>Poor state management</li>
+							<li>Mutations and asynchronicity</li>
+						</ul>
+						<aside class="notes">
+							Reasons why two way data flow and existing solutions aren't working
+						</aside>
+					</section>
+					<section>
+						<h2>Inspiration</h2>
+						<ul>
+							<li>Flux ((state, action) => state)</li>
+							<li>Elm (Functional language based on model-view-update)</li>
+							<li>Immutable</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Principles</h2>
+					</section>
+					<section>
+						<p class="fragment">Single source of truth</p>
+						<p class="fragment">State is read only</p>
+						<p class="fragment">Changes are made with pure functions</p>
+						<aside class="notes">
+							Single source makes universal apps easier.
+							Read only means no state changes from unexpected places. Order is enforced
+							Pure functions mean no side effects and predictable architecture. Just add more reducers
+							Easier debugging, testing, etc.
+						</aside>
+					</section>
+				</section>
+
+				<section>
+					<section>
+						<h2>Redux</h2>
+					</section>
+					<section>
+						<h2>Actions</h2>
+						<p>Plain JavaScript Objects</p>
+						<p>Only source of information for the store (via dispatch)</p>
+						<p>Must have a type</p>
+						<p>Action creators are just functions that return actions</p>
+					</section>
+					<section>
+						<h2>Actions</h2>
+						<pre><code class="hljs" data-trim>
+{
+  type: ADD_TODO,
+  text: 'Build my first Redux app'
+}
+						</code></pre>
+					</section>
+					<section>
+						<h2>Reducers</h2>
+						<p>Specifiy how app's state changes in response to an action</p>
+						<p><code>(previousState, action) => newState</code></p>
+						<p>Must be pure functions</p>
+						<p>Can be composed to manage different parts of state tree</p>
+					</section>
+					<section>
+						<h2>Reducers</h2>
+						<pre><code class="hljs" data-trim>
+function todoApp(state = initialState, action) {
+  switch (action.type) {
+    case ADD_TODO:
+      return Object.assign({}, state, {
+        todos: [
+          ...state.todos,
+          {
+            text: action.text,
+            completed: false
+          }
+        ]
+      })
+    default:
+      return state
+  }
+}
+						</code></pre>
+					</section>
+					<section>
+						<h2>Store</h2>
+						<p>Holds application state</p>
+						<p>Allows access to state via <code>getState()</code></p>
+						<p>Allows state to be updated via <code>dispatch(action)</code></p>
+						<p>Handles low level listeners</p>
+					</section>
+					<section>
+						<h2>Data flow</h2>
+						<ol>
+							<li>An action is dispatched</li>
+							<li>The store calls the reducer function(s)</li>
+							<li>The root reducer combines the output of all reducers</li>
+							<li>The store saves the complete state tree from the root reducer</li>
+						</ol>
+					</section>
+					<section>
+						<img src="img/redux-unidir-ui-arch.jpg" height="960" width="1280" />
+					</section>
+					<section>
+						<h2>Usage with React</h2>
+						<p>Requires <code>react-redux</code> for bindings</p>
+						<p>Component hierarchy should match state tree design</p>
+						<p>Container and presentational components</p>
+					</section>
+				</section>
+
+				<section>
+					<h2>Example</h2>
+				</section>
+
+				<section>
+					<section>
+						<h2>Reasoning</h2>
+					</section>
+					<section>
+						<h2>Pros</h2>
+						<ul>
+							<li>Documentation</li>
+							<li>Ecosystem + Ergonomics</li>
+							<li>Community + Dan Abramov</li>
+							<li>Just JavaScript</li>
+							<li>Easy Onboarding</li>
+							<li>Essentially Finished</li>
+						</ul>
+					</section>
+					<section>
+						<h2>Cons</h2>
+						<ul>
+							<li>New and Unproven</li>
+							<li>Paradigm Shift</li>
+							<li>JavaScript Fatigue</li>
+							<li>Boilerplate</li>
+						</ul>
+					</section>
+				</section>
+
+				<section>
+					<h2>Extras</h2>
+					<ul>
+						<li>Middleware</li>
+						<li>Async Operations</li>
+						<li>Immutable</li>
+						<li>Normalizr</li>
+						<li>Routing</li>
+						<li>Webpack</li>
+						<li>Other Frameworks</li>
+					</ul>
+				</section>
+
+				<section>
+					<h2>Resources</h2>
+					<ul>
+						<li><a href="http://redux.js.org">Official Redux Documentation</a></li>
+						<li><a href="https://egghead.io/series/getting-started-with-redux">Getting Started with Redux on Egghead.io</a></li>
+						<li><a href="https://github.com/xgrommx/awesome-redux">Awesome Redux</a></li>
+						<li><a href="https://twitter.com/dan_abramov">Dan Abramov</a></li>
+					</ul>
+				</section>
+
+				<section style="font-style: italic;" data-background="img/done.gif">
+					<p>fin</p>
+				</section>
+
+				<section>
+					<h2>Sources</h2>
+					<ol>
+						<li>http://staltz.com/unidirectional-user-interface-architectures.html</li>
+						<li>https://medium.com/brigade-engineering/what-is-the-flux-application-architecture-b57ebca85b9e#.8aiad2fmc</li>
+					</ol>
+				</section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
